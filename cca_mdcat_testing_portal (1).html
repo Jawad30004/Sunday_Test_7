@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunday Test 7 - MDCAT Mock Test</title>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config for Branding Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            200: '#fecaca',
+                            300: '#fca5a5',
+                            400: '#f87171',
+                            500: '#ef4444',
+                            600: '#dc2626', // Red primary
+                            700: '#b91c1c',
+                            800: '#991b1b',
+                            900: '#7f1d1d',
+                        },
+                        cyan: {
+                            50: '#ecfeff',
+                            100: '#cffafe',
+                            500: '#06b6d4',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- jsPDF and AutoTable for PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+            background-attachment: fixed;
+            color: #334155;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        .scientific-text {
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body class="no-select" oncontextmenu="return false;">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- QUIZ DATA ---
+        // 81 MCQs covering Digestion, Biological Molecules, and Respiration
+        const quizQuestions = [
+            {
+                id: 1,
+                question: "Which digestive enzyme is active in the acidic environment of the stomach?",
+                options: ["Trypsin", "Pepsin", "Amylase", "Maltase"],
+                correct: 1,
+                explanation: "Pepsin operates optimally in the highly acidic environment (pH ~2) of the stomach.",
+                difficulty: "Easy"
+            },
+            {
+                id: 2,
+                question: "Which molecule acts as an amphoteric substance?",
+                options: ["Glucose", "Water", "Amino acid", "Both B and C"],
+                correct: 3,
+                explanation: "Both water and amino acids can act as both acids and bases, making them amphoteric.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 3,
+                question: "Which cartilage prevents food from entering the larynx during swallowing?",
+                options: ["Thyroid cartilage", "Cricoid cartilage", "Epiglottis", "Arytenoid cartilage"],
+                correct: 2,
+                explanation: "The epiglottis folds over the glottis during swallowing to prevent food from entering the respiratory tract.",
+                difficulty: "Easy"
+            },
+            {
+                id: 4,
+                question: "The largest lobe of the human liver is the?",
+                options: ["Left lobe", "Caudate lobe", "Right lobe", "Quadrate lobe"],
+                correct: 2,
+                explanation: "The right lobe is the largest of the four anatomical lobes of the human liver.",
+                difficulty: "Easy"
+            },
+            {
+                id: 5,
+                question: "Which of the following is the most abundant organic compound in mammalian protoplasm?",
+                options: ["Water", "Carbohydrates", "Proteins", "Lipids"],
+                correct: 2,
+                explanation: "Proteins are the most abundant organic compounds in animal cells, while water is the most abundant inorganic compound.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 6,
+                question: "The trachea bifurcates into main bronchi at the level of?",
+                options: ["T3", "T5", "T7", "T10"],
+                correct: 1,
+                explanation: "The trachea bifurcates at the carina, which corresponds to the level of the 5th thoracic vertebra (T5).",
+                difficulty: "Hard"
+            },
+            {
+                id: 7,
+                question: "Which nitrogenous base is found only in RNA?",
+                options: ["Thymine", "Cytosine", "Uracil", "Guanine"],
+                correct: 2,
+                explanation: "Uracil replaces thymine in RNA, pairing with adenine.",
+                difficulty: "Easy"
+            },
+            {
+                id: 8,
+                question: "Which digestive organ produces bile?",
+                options: ["Pancreas", "Liver", "Gallbladder", "Stomach"],
+                correct: 1,
+                explanation: "The liver produces bile, which is then transported to the gallbladder for storage and concentration.",
+                difficulty: "Easy"
+            },
+            {
+                id: 9,
+                question: "Naturally occurring sugars digested by human enzymes are exclusively in which form?",
+                options: ["L-form", "D-form", "Racemic mixtures", "Beta-anomers"],
+                correct: 1,
+                explanation: "Enzymes in the human body are stereospecific and only recognize and metabolize D-form sugars.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 10,
+                question: "The conducting portion of the respiratory system extends from the:",
+                options: ["Alveoli to bronchioles", "Nose to terminal bronchioles", "Respiratory bronchioles to alveoli", "Trachea to alveolar sacs"],
+                correct: 1,
+                explanation: "The conducting zone transports, warms, and humidifies air, starting from the nasal cavity and ending at the terminal bronchioles.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 11,
+                question: "Which carbohydrate is commonly called cane sugar?",
+                options: ["Lactose", "Maltose", "Sucrose", "Cellulose"],
+                correct: 2,
+                explanation: "Sucrose is a disaccharide obtained from sugarcane and sugar beets, commonly known as cane sugar or table sugar.",
+                difficulty: "Easy"
+            },
+            {
+                id: 12,
+                question: "Which hormone specifically stimulates the pancreas to release a bicarbonate-rich juice?",
+                options: ["CCK", "Secretin", "Gastrin", "GIP"],
+                correct: 1,
+                explanation: "Secretin is released in response to acidic chyme and stimulates the pancreas to secrete bicarbonate to neutralize it.",
+                difficulty: "Hard"
+            },
+            {
+                id: 13,
+                question: "Liquid water is most dense at what temperature?",
+                options: ["0°C", "3.98°C", "100°C", "-20°C"],
+                correct: 1,
+                explanation: "Water achieves its maximum density at approximately 3.98°C (often rounded to 4°C).",
+                difficulty: "Moderate"
+            },
+            {
+                id: 14,
+                question: "Which organ stores and concentrates bile?",
+                options: ["Liver", "Pancreas", "Gallbladder", "Spleen"],
+                correct: 2,
+                explanation: "The gallbladder stores the bile synthesized by the liver and concentrates it by removing water.",
+                difficulty: "Easy"
+            },
+            {
+                id: 15,
+                question: "Which of the following lacks a chiral carbon?",
+                options: ["Glyceraldehyde", "Erythrose", "Ribose", "Dihydroxyacetone"],
+                correct: 3,
+                explanation: "Dihydroxyacetone is the simplest ketose and does not possess an asymmetric (chiral) carbon atom.",
+                difficulty: "Hard"
+            },
+            {
+                id: 16,
+                question: "Which polysaccharide forms the major structural component of the plant cell wall?",
+                options: ["Glycogen", "Amylose", "Cellulose", "Chitin"],
+                correct: 2,
+                explanation: "Cellulose consists of beta-glucose units and is the primary structural component of plant cell walls.",
+                difficulty: "Easy"
+            },
+            {
+                id: 17,
+                question: "Which nitrogenous base is found only in DNA?",
+                options: ["Uracil", "Adenine", "Thymine", "Cytosine"],
+                correct: 2,
+                explanation: "Thymine is exclusive to DNA, whereas RNA contains uracil in its place.",
+                difficulty: "Easy"
+            },
+            {
+                id: 18,
+                question: "The monomeric unit of nucleic acids is the:",
+                options: ["Amino acid", "Nucleotide", "Monosaccharide", "Fatty acid"],
+                correct: 1,
+                explanation: "Nucleic acids (DNA and RNA) are polymers made up of nucleotide monomers.",
+                difficulty: "Easy"
+            },
+            {
+                id: 19,
+                question: "The specialized macrophages located in the liver are?",
+                options: ["Microglia", "Dust cells", "Kupffer cells", "Langerhans cells"],
+                correct: 2,
+                explanation: "Kupffer cells are specialized macrophages residing in the liver sinusoids.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 20,
+                question: "The penultimate carbon in an aldose determines its?",
+                options: ["Anomeric state (alpha or beta)", "Stereoisomer (D or L form)", "Number of carbon atoms", "Aldehyde group location"],
+                correct: 1,
+                explanation: "The configuration of the -OH group on the penultimate (second to last) carbon determines if a sugar is a D or L stereoisomer.",
+                difficulty: "Hard"
+            },
+            {
+                id: 21,
+                question: "Proteins are polymers of which monomers?",
+                options: ["Monosaccharides", "Fatty acids", "Amino acids", "Nucleotides"],
+                correct: 2,
+                explanation: "Amino acids are the building blocks of proteins, linked by peptide bonds.",
+                difficulty: "Easy"
+            },
+            {
+                id: 22,
+                question: "Which level of protein structure is characterized by an alpha-helix or beta-pleated sheet?",
+                options: ["Primary", "Secondary", "Tertiary", "Quaternary"],
+                correct: 1,
+                explanation: "Secondary structures arise from hydrogen bonding between the backbone atoms.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 23,
+                question: "Enzymes speed up biochemical reactions by:",
+                options: ["Increasing temperature", "Lowering activation energy", "Changing reaction equilibrium", "Releasing energy"],
+                correct: 1,
+                explanation: "Enzymes act as catalysts by lowering the activation energy barrier of the reaction.",
+                difficulty: "Easy"
+            },
+            {
+                id: 24,
+                question: "The non-protein organic portion of an enzyme that is loosely attached is called a:",
+                options: ["Prosthetic group", "Apoenzyme", "Coenzyme", "Inhibitor"],
+                correct: 2,
+                explanation: "Coenzymes are loosely attached organic cofactors, like vitamins.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 25,
+                question: "A competitive inhibitor typically resembles the:",
+                options: ["Enzyme active site", "Substrate", "Allosteric site", "Coenzyme"],
+                correct: 1,
+                explanation: "Competitive inhibitors structurally mimic the substrate and compete for the active site.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 26,
+                question: "Which bond is characteristic of lipids?",
+                options: ["Peptide bond", "Glycosidic bond", "Ester bond", "Phosphodiester bond"],
+                correct: 2,
+                explanation: "Lipids like triglycerides are formed by ester bonds between glycerol and fatty acids.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 27,
+                question: "Which RNA molecule carries amino acids to the ribosome?",
+                options: ["mRNA", "rRNA", "tRNA", "snRNA"],
+                correct: 2,
+                explanation: "Transfer RNA (tRNA) has an anticodon and carries specific amino acids during translation.",
+                difficulty: "Easy"
+            },
+            {
+                id: 28,
+                question: "The process of breaking down large lipid droplets into smaller micelles is called:",
+                options: ["Saponification", "Emulsification", "Esterification", "Hydrolysis"],
+                correct: 1,
+                explanation: "Bile salts emulsify lipids to increase the surface area for lipase action.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 29,
+                question: "The end product of glycolysis is:",
+                options: ["Glucose", "Lactic acid", "Pyruvate", "Acetyl CoA"],
+                correct: 2,
+                explanation: "Glycolysis breaks down one glucose molecule into two molecules of pyruvate.",
+                difficulty: "Easy"
+            },
+            {
+                id: 30,
+                question: "In human cells, anaerobic respiration produces:",
+                options: ["Ethanol and CO2", "Lactic acid", "Pyruvate", "Water"],
+                correct: 1,
+                explanation: "During rigorous exercise, muscle cells undergo lactic acid fermentation.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 31,
+                question: "Which enzyme initiates the digestion of starch in the oral cavity?",
+                options: ["Pepsin", "Ptyalin", "Trypsin", "Lipase"],
+                correct: 1,
+                explanation: "Ptyalin (salivary amylase) begins carbohydrate digestion in the mouth.",
+                difficulty: "Easy"
+            },
+            {
+                id: 32,
+                question: "Oxyntic cells in the gastric glands secrete:",
+                options: ["Pepsinogen", "Mucus", "HCl", "Gastrin"],
+                correct: 2,
+                explanation: "Oxyntic (parietal) cells secrete hydrochloric acid (HCl) and intrinsic factor.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 33,
+                question: "Which of the following is NOT a part of the small intestine?",
+                options: ["Duodenum", "Jejunum", "Ileum", "Cecum"],
+                correct: 3,
+                explanation: "The cecum is the beginning of the large intestine.",
+                difficulty: "Easy"
+            },
+            {
+                id: 34,
+                question: "The semi-fluid mass of partly digested food expelled by the stomach is:",
+                options: ["Bolus", "Chyle", "Chyme", "Feces"],
+                correct: 2,
+                explanation: "Chyme is the acidic, semi-fluid mass that enters the duodenum from the stomach.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 35,
+                question: "Enterokinase activates:",
+                options: ["Pepsinogen", "Prorennin", "Trypsinogen", "Chymotrypsinogen"],
+                correct: 2,
+                explanation: "Enterokinase (enteropeptidase) from the intestinal mucosa converts trypsinogen to active trypsin.",
+                difficulty: "Hard"
+            },
+            {
+                id: 36,
+                question: "Water absorption primarily occurs in the:",
+                options: ["Stomach", "Small intestine", "Large intestine", "Rectum"],
+                correct: 2,
+                explanation: "The large intestine is the primary site for the final absorption of water and electrolytes.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 37,
+                question: "In the respiratory system, gas exchange occurs in the:",
+                options: ["Trachea", "Bronchi", "Bronchioles", "Alveoli"],
+                correct: 3,
+                explanation: "Alveoli are thin-walled sacs surrounded by capillaries where external respiration takes place.",
+                difficulty: "Easy"
+            },
+            {
+                id: 38,
+                question: "The vocal cords are located in the:",
+                options: ["Pharynx", "Larynx", "Trachea", "Glottis"],
+                correct: 1,
+                explanation: "The larynx (voice box) contains the vocal cords responsible for sound production.",
+                difficulty: "Easy"
+            },
+            {
+                id: 39,
+                question: "The primary muscle of respiration is the:",
+                options: ["Intercostal muscle", "Diaphragm", "Abdominal rectus", "Pectoralis major"],
+                correct: 1,
+                explanation: "The diaphragm contracts and flattens during inhalation, increasing thoracic volume.",
+                difficulty: "Easy"
+            },
+            {
+                id: 40,
+                question: "Which substance reduces surface tension in the alveoli?",
+                options: ["Mucus", "Surfactant", "Pleural fluid", "Plasma"],
+                correct: 1,
+                explanation: "Pulmonary surfactant prevents alveolar collapse by lowering surface tension.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 41,
+                question: "During normal resting inhalation, the pressure inside the lungs becomes:",
+                options: ["Greater than atmospheric", "Equal to atmospheric", "Less than atmospheric", "Zero"],
+                correct: 2,
+                explanation: "Inhalation creates a negative pressure (less than atmospheric) drawing air in.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 42,
+                question: "The volume of air breathed in and out during a normal breath is called:",
+                options: ["Vital capacity", "Tidal volume", "Residual volume", "Total lung capacity"],
+                correct: 1,
+                explanation: "Tidal volume is typically around 500 mL in a healthy resting adult.",
+                difficulty: "Easy"
+            },
+            {
+                id: 43,
+                question: "Which part of the brain controls the respiratory rate?",
+                options: ["Cerebrum", "Cerebellum", "Medulla oblongata", "Hypothalamus"],
+                correct: 2,
+                explanation: "The medulla oblongata and pons contain the respiratory centers.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 44,
+                question: "Oxygen is transported in the blood primarily bound to:",
+                options: ["Plasma proteins", "White blood cells", "Hemoglobin", "Platelets"],
+                correct: 2,
+                explanation: "Over 98% of oxygen in the blood is transported as oxyhemoglobin in red blood cells.",
+                difficulty: "Easy"
+            },
+            {
+                id: 45,
+                question: "Carbon dioxide is mostly transported in the blood as:",
+                options: ["Dissolved gas", "Carbaminohemoglobin", "Bicarbonate ions", "Carbonic acid"],
+                correct: 2,
+                explanation: "About 70% of CO2 is transported in plasma as bicarbonate ions (HCO3-).",
+                difficulty: "Moderate"
+            },
+            {
+                id: 46,
+                question: "The Bohr effect describes the impact of:",
+                options: ["CO2 and pH on O2 affinity", "O2 on CO2 affinity", "Temperature on hemoglobin", "BP on gas exchange"],
+                correct: 0,
+                explanation: "The Bohr effect shows that high CO2 and low pH decrease hemoglobin's affinity for O2.",
+                difficulty: "Hard"
+            },
+            {
+                id: 47,
+                question: "Glycogen is a polymer of:",
+                options: ["Alpha-glucose", "Beta-glucose", "Fructose", "Galactose"],
+                correct: 0,
+                explanation: "Glycogen is heavily branched and composed entirely of alpha-glucose units.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 48,
+                question: "A lipid molecule that contains a phosphate group is a:",
+                options: ["Triglyceride", "Phospholipid", "Steroid", "Wax"],
+                correct: 1,
+                explanation: "Phospholipids have a hydrophilic phosphate head and hydrophobic fatty acid tails.",
+                difficulty: "Easy"
+            },
+            {
+                id: 49,
+                question: "Which vitamin is essential for blood clotting?",
+                options: ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin K"],
+                correct: 3,
+                explanation: "Vitamin K is required for the synthesis of prothrombin and other clotting factors.",
+                difficulty: "Easy"
+            },
+            {
+                id: 50,
+                question: "The functional group -COOH is known as:",
+                options: ["Hydroxyl", "Carbonyl", "Carboxyl", "Amino"],
+                correct: 2,
+                explanation: "The carboxyl group is acidic and characteristic of organic acids.",
+                difficulty: "Easy"
+            },
+            {
+                id: 51,
+                question: "In double-stranded DNA, the ratio of purines to pyrimidines is:",
+                options: ["1:1", "1:2", "2:1", "Variable"],
+                correct: 0,
+                explanation: "Chargaff's rule states that purines (A+G) always equal pyrimidines (T+C) in DNA.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 52,
+                question: "Which bonds stabilize the alpha-helix structure of a protein?",
+                options: ["Disulfide bonds", "Hydrogen bonds", "Ionic bonds", "Hydrophobic interactions"],
+                correct: 1,
+                explanation: "Hydrogen bonds between the C=O and N-H groups of the peptide backbone form the helix.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 53,
+                question: "The optimum temperature for most human enzymes is around:",
+                options: ["20°C", "37°C", "45°C", "100°C"],
+                correct: 1,
+                explanation: "Human enzymes function best at normal body temperature, 37°C.",
+                difficulty: "Easy"
+            },
+            {
+                id: 54,
+                question: "Which of the following is a structural protein?",
+                options: ["Insulin", "Hemoglobin", "Collagen", "Enzymes"],
+                correct: 2,
+                explanation: "Collagen provides structural support in connective tissues like skin and tendons.",
+                difficulty: "Easy"
+            },
+            {
+                id: 55,
+                question: "The bond between two amino acids is a:",
+                options: ["Glycosidic bond", "Peptide bond", "Ester bond", "Phosphodiester bond"],
+                correct: 1,
+                explanation: "A peptide bond is a covalent amide bond linking amino acids in a polypeptide.",
+                difficulty: "Easy"
+            },
+            {
+                id: 56,
+                question: "Which monosaccharide is known as blood sugar?",
+                options: ["Fructose", "Galactose", "Glucose", "Ribose"],
+                correct: 2,
+                explanation: "Glucose is the primary sugar circulating in human blood.",
+                difficulty: "Easy"
+            },
+            {
+                id: 57,
+                question: "The main function of cellular respiration is to produce:",
+                options: ["Oxygen", "Glucose", "ATP", "Carbon dioxide"],
+                correct: 2,
+                explanation: "Respiration breaks down glucose to generate ATP, the cell's energy currency.",
+                difficulty: "Easy"
+            },
+            {
+                id: 58,
+                question: "Which of these is a trace element in the human body?",
+                options: ["Carbon", "Iron", "Oxygen", "Nitrogen"],
+                correct: 1,
+                explanation: "Iron is essential but needed only in minute quantities, making it a trace element.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 59,
+                question: "Which organelle is the site of aerobic respiration?",
+                options: ["Nucleus", "Ribosome", "Mitochondrion", "Chloroplast"],
+                correct: 2,
+                explanation: "Mitochondria host the Krebs cycle and electron transport chain for ATP production.",
+                difficulty: "Easy"
+            },
+            {
+                id: 60,
+                question: "What is the primary role of the large intestine?",
+                options: ["Protein digestion", "Nutrient absorption", "Water reabsorption", "Bile production"],
+                correct: 2,
+                explanation: "The large intestine absorbs water and salts, forming solid feces.",
+                difficulty: "Easy"
+            },
+            {
+                id: 61,
+                question: "Parietal cells in the stomach secrete:",
+                options: ["Pepsinogen", "Mucus", "Hydrochloric acid", "Gastrin"],
+                correct: 2,
+                explanation: "Parietal cells secrete HCl, creating the acidic environment of the stomach.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 62,
+                question: "Which enzyme acts on milk protein (casein) in infants?",
+                options: ["Trypsin", "Rennin", "Lipase", "Amylase"],
+                correct: 1,
+                explanation: "Rennin curdles milk protein in the infant stomach to delay its passage.",
+                difficulty: "Hard"
+            },
+            {
+                id: 63,
+                question: "Bile is essential for the digestion of:",
+                options: ["Proteins", "Carbohydrates", "Lipids", "Nucleic acids"],
+                correct: 2,
+                explanation: "Bile emulsifies lipids into tiny droplets, aiding lipase action.",
+                difficulty: "Easy"
+            },
+            {
+                id: 64,
+                question: "A deficiency in which vitamin causes scurvy?",
+                options: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+                correct: 2,
+                explanation: "Vitamin C is required for collagen synthesis; its deficiency leads to scurvy.",
+                difficulty: "Easy"
+            },
+            {
+                id: 65,
+                question: "Where is the respiratory center located in the brain?",
+                options: ["Cerebrum", "Cerebellum", "Medulla oblongata", "Hypothalamus"],
+                correct: 2,
+                explanation: "The medulla oblongata controls autonomous respiratory rhythms.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 66,
+                question: "The total volume of air the lungs can hold is called:",
+                options: ["Tidal volume", "Vital capacity", "Total lung capacity", "Residual volume"],
+                correct: 2,
+                explanation: "Total lung capacity is the maximum amount of air the lungs can contain after a maximal inhalation.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 67,
+                question: "Which condition is characterized by the destruction of alveolar walls?",
+                options: ["Asthma", "Emphysema", "Pneumonia", "Tuberculosis"],
+                correct: 1,
+                explanation: "Emphysema reduces surface area for gas exchange due to broken alveolar walls, often from smoking.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 68,
+                question: "The protective double membrane surrounding the lungs is the:",
+                options: ["Pericardium", "Peritoneum", "Pleura", "Meninges"],
+                correct: 2,
+                explanation: "The pleural membrane encloses the lungs and secretes lubricating pleural fluid.",
+                difficulty: "Easy"
+            },
+            {
+                id: 69,
+                question: "What is the function of the epiglottis?",
+                options: ["Produce sound", "Filter air", "Cover glottis during swallowing", "Support the trachea"],
+                correct: 2,
+                explanation: "It prevents food and liquids from entering the respiratory tract.",
+                difficulty: "Easy"
+            },
+            {
+                id: 70,
+                question: "Which of the following describes a tertiary protein structure?",
+                options: ["Linear sequence", "Alpha helix", "3D folding", "Multiple subunits"],
+                correct: 2,
+                explanation: "Tertiary structure refers to the overall three-dimensional folding of a single polypeptide.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 71,
+                question: "What type of inhibition can be overcome by adding more substrate?",
+                options: ["Competitive", "Non-competitive", "Irreversible", "Allosteric"],
+                correct: 0,
+                explanation: "Competitive inhibitors compete for the active site, so increasing substrate concentration outcompetes them.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 72,
+                question: "An enzyme without its required cofactor is called an:",
+                options: ["Holoenzyme", "Apoenzyme", "Isoenzyme", "Zymogen"],
+                correct: 1,
+                explanation: "An apoenzyme is the inactive protein part of an enzyme that requires a cofactor to function.",
+                difficulty: "Hard"
+            },
+            {
+                id: 73,
+                question: "Which element is found in all proteins but not in carbohydrates or lipids?",
+                options: ["Carbon", "Hydrogen", "Oxygen", "Nitrogen"],
+                correct: 3,
+                explanation: "Nitrogen is a key component of amino acids, distinguishing proteins from carbs and typical lipids.",
+                difficulty: "Easy"
+            },
+            {
+                id: 74,
+                question: "Fatty acids containing one or more double bonds are:",
+                options: ["Saturated", "Unsaturated", "Steroids", "Waxes"],
+                correct: 1,
+                explanation: "Unsaturated fatty acids have double bonds, causing kinks in the hydrocarbon chain.",
+                difficulty: "Easy"
+            },
+            {
+                id: 75,
+                question: "Which of the following is a disaccharide?",
+                options: ["Glucose", "Fructose", "Maltose", "Galactose"],
+                correct: 2,
+                explanation: "Maltose is a disaccharide formed by two glucose units linked together.",
+                difficulty: "Easy"
+            },
+            {
+                id: 76,
+                question: "The chemical digestion of proteins begins in the:",
+                options: ["Mouth", "Stomach", "Duodenum", "Ileum"],
+                correct: 1,
+                explanation: "Protein digestion starts in the stomach through the action of pepsin.",
+                difficulty: "Easy"
+            },
+            {
+                id: 77,
+                question: "Which structure connects the pharynx to the stomach?",
+                options: ["Trachea", "Larynx", "Esophagus", "Duodenum"],
+                correct: 2,
+                explanation: "The esophagus is the muscular tube that transports food to the stomach via peristalsis.",
+                difficulty: "Easy"
+            },
+            {
+                id: 78,
+                question: "Which sphincter controls the release of chyme from the stomach?",
+                options: ["Cardiac sphincter", "Pyloric sphincter", "Ileocecal valve", "Anal sphincter"],
+                correct: 1,
+                explanation: "The pyloric sphincter regulates the passage of chyme into the duodenum.",
+                difficulty: "Moderate"
+            },
+            {
+                id: 79,
+                question: "The primary function of the root hair in plants is analogous to which human structure?",
+                options: ["Alveoli", "Villi", "Nephrons", "Capillaries"],
+                correct: 1,
+                explanation: "Both root hairs and intestinal villi increase surface area to maximize absorption.",
+                difficulty: "Hard"
+            },
+            {
+                id: 80,
+                question: "What is the pH of human blood?",
+                options: ["7.0", "7.4", "6.8", "7.8"],
+                correct: 1,
+                explanation: "Human blood is tightly regulated at a slightly basic pH of approximately 7.35 to 7.45.",
+                difficulty: "Easy"
+            },
+            {
+                id: 81,
+                question: "Hemoglobin is an example of a protein with:",
+                options: ["Primary structure only", "Secondary structure only", "Tertiary structure only", "Quaternary structure"],
+                correct: 3,
+                explanation: "Hemoglobin consists of four polypeptide subunits interacting together, which is a quaternary structure.",
+                difficulty: "Moderate"
+            }
+        ];
+
+        // --- COMPONENTS ---
+
+        const Icons = {
+            BookOpen: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>,
+            User: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>,
+            Clock: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>,
+            CheckCircle: () => <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>,
+            XCircle: () => <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>,
+            Download: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>,
+            ShieldCheck: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>,
+            Lock: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>,
+        };
+
+        const TopBar = () => (
+            <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-brand-600 text-white p-2 rounded-lg">
+                                <Icons.BookOpen />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold text-gray-900 tracking-tight leading-none">Capital Coaching Academy</h1>
+                                <p className="text-xs text-brand-600 font-semibold mt-1">Instructor: Sir Jawad | Sunday Test 7 | 18 July 2026</p>
+                            </div>
+                        </div>
+                        <div className="hidden md:flex items-center text-sm font-medium text-gray-500">
+                            <Icons.ShieldCheck />
+                            <span className="ml-1">MDCAT Mock Test</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- MAIN APP ---
+        const App = () => {
+            const [screen, setScreen] = useState('landing'); // landing, register, quiz, result, review
+            const [studentData, setStudentData] = useState({ name: '', fatherName: '' });
+            const [answers, setAnswers] = useState(new Array(quizQuestions.length).fill(null));
+            const [currentQ, setCurrentQ] = useState(0);
+            const [timeRemaining, setTimeRemaining] = useState(quizQuestions.length * 60); // Dynamic timer (1 min per question)
+            const [showSubmitModal, setShowSubmitModal] = useState(false); // NEW STATE FOR MODAL
+            const [accessCode, setAccessCode] = useState('');
+            const [errorMsg, setErrorMsg] = useState('');
+            
+            // Timer logic
+            useEffect(() => {
+                let timer;
+                if (screen === 'quiz' && timeRemaining > 0) {
+                    timer = setInterval(() => {
+                        setTimeRemaining(prev => {
+                            if (prev <= 1) {
+                                clearInterval(timer);
+                                handleQuizSubmit();
+                                return 0;
+                            }
+                            return prev - 1;
+                        });
+                    }, 1000);
+                }
+                return () => clearInterval(timer);
+            }, [screen, timeRemaining]);
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            };
+
+            const handleQuizSubmit = () => {
+                setScreen('result');
+            };
+
+            // Helper to prevent jsPDF from crashing on special scientific characters
+            const sanitizeForPDF = (text) => {
+                if (!text) return "";
+                return text.toString()
+                    .replace(/α/g, 'alpha')
+                    .replace(/β/g, 'beta')
+                    .replace(/γ/g, 'gamma')
+                    .replace(/Ψ/g, 'Psi')
+                    .replace(/⁺/g, '+');
+            };
+
+            const generateResultPDF = () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const correctCount = answers.filter((a, i) => a === quizQuestions[i].correct).length;
+                const skippedCount = answers.filter(a => a === null).length;
+                const percentage = ((correctCount / quizQuestions.length) * 100).toFixed(1);
+
+                // Header
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(18);
+                doc.setTextColor(220, 38, 38);
+                doc.text("Capital Coaching Academy", 105, 20, { align: 'center' });
+                doc.setFontSize(14);
+                doc.setTextColor(51, 65, 85);
+                doc.text("Sunday Test 7 - MDCAT Mock Test Result", 105, 28, { align: 'center' });
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(11);
+                doc.text(`Instructor: Sir Jawad`, 105, 35, { align: 'center' });
+                doc.line(20, 42, 190, 42);
+
+                // Student Details
+                doc.setFontSize(12);
+                doc.text(`Student Name: ${studentData.name}`, 20, 52);
+                doc.text(`Father's Name: ${studentData.fatherName}`, 20, 60);
+                doc.text(`Date: 18 July 2026`, 140, 52);
+                doc.text(`Topic: MDCAT Mock Test`, 140, 60);
+
+                // Score Box
+                doc.setFillColor(254, 242, 242);
+                doc.setDrawColor(220, 38, 38);
+                doc.rect(20, 70, 170, 25, 'FD');
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(220, 38, 38);
+                doc.text(`Score: ${correctCount} / ${quizQuestions.length}`, 30, 85);
+                doc.text(`Percentage: ${percentage}%`, 130, 85);
+
+                // Question by Question Review Table
+                const reviewData = quizQuestions.map((q, i) => {
+                    const studentAns = answers[i] !== null ? String.fromCharCode(65 + answers[i]) : "Skipped";
+                    const correctAns = String.fromCharCode(65 + q.correct);
+                    const status = answers[i] === q.correct ? "Correct" : (answers[i] === null ? "Skipped" : "Incorrect");
+                    return [i + 1, studentAns, correctAns, status, sanitizeForPDF(q.explanation)];
+                });
+
+                doc.autoTable({
+                    startY: 105,
+                    head: [['Q#', 'Your Ans', 'Key', 'Status', 'Explanation']],
+                    body: reviewData,
+                    headStyles: { fillColor: [220, 38, 38], textColor: 255 },
+                    styles: { fontSize: 8, cellPadding: 2 },
+                    columnStyles: {
+                        0: { cellWidth: 10 },
+                        1: { cellWidth: 15 },
+                        2: { cellWidth: 10 },
+                        3: { cellWidth: 18, fontStyle: 'bold' },
+                        4: { cellWidth: 'auto' }
+                    },
+                    didParseCell: function(data) {
+                        if (data.section === 'body' && data.column.index === 3) {
+                            if (data.cell.raw === 'Correct') data.cell.styles.textColor = [34, 197, 94]; // Green
+                            else if (data.cell.raw === 'Incorrect') data.cell.styles.textColor = [239, 68, 68]; // Red
+                            else data.cell.styles.textColor = [156, 163, 175]; // Gray
+                        }
+                    }
+                });
+
+                doc.save(`CCA_Result_${studentData.name.replace(/\s+/g, '_')}.pdf`);
+            };
+
+            // Screens Renderers
+            const renderLanding = () => (
+                <div className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+                    <div className="max-w-3xl glass-panel p-10 rounded-2xl shadow-xl">
+                        <div className="inline-block p-4 bg-brand-100 rounded-full mb-6">
+                            <Icons.BookOpen className="w-12 h-12 text-brand-600" />
+                        </div>
+                        <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">MDCAT Mock Test</h1>
+                        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                            Welcome to the official online testing portal for Capital Coaching Academy. <br/>
+                            <strong>Sunday Test 7 | 18 July 2026</strong> <br/>
+                            Prepare with academy-standard conceptual MCQs structured by Sir Jawad.
+                        </p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 max-w-xl mx-auto text-left">
+                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-start gap-4">
+                                <div className="bg-cyan-50 p-2 rounded-lg text-cyan-600"><Icons.Clock /></div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900">{quizQuestions.length} Minutes</h3>
+                                    <p className="text-sm text-gray-500">Timed strictly to exam patterns</p>
+                                </div>
+                            </div>
+                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-start gap-4">
+                                <div className="bg-brand-50 p-2 rounded-lg text-brand-600"><Icons.BookOpen /></div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900">{quizQuestions.length} Questions</h3>
+                                    <p className="text-sm text-gray-500">Conceptual & Syllabus based</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center">
+                            <button 
+                                onClick={() => setScreen('register')}
+                                className="bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-10 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-lg"
+                            >
+                                Start Live Mock Test
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const renderRegister = () => (
+                <div className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center p-6">
+                    <div className="max-w-md w-full glass-panel p-8 rounded-2xl shadow-xl">
+                        <div className="text-center mb-8">
+                            <h2 className="text-2xl font-bold text-gray-900">Student Registration</h2>
+                            <p className="text-gray-500 text-sm mt-2">Enter your details and access code to begin.</p>
+                        </div>
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            setErrorMsg('');
+                            if (accessCode !== 'MicroJ9') {
+                                setErrorMsg('Invalid Access Code. Please try again.');
+                                return;
+                            }
+                            if(studentData.name.trim() && studentData.fatherName.trim()) setScreen('quiz');
+                        }} className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <Icons.User />
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        required 
+                                        value={studentData.name}
+                                        onChange={(e) => setStudentData({...studentData, name: e.target.value})}
+                                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500 bg-white" 
+                                        placeholder="Enter your name" 
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Father's Name</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <Icons.User />
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        required 
+                                        value={studentData.fatherName}
+                                        onChange={(e) => setStudentData({...studentData, fatherName: e.target.value})}
+                                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500 bg-white" 
+                                        placeholder="Enter father's name" 
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Access Code</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <Icons.Lock />
+                                    </div>
+                                    <input 
+                                        type="password" 
+                                        required 
+                                        value={accessCode}
+                                        onChange={(e) => {
+                                            setAccessCode(e.target.value);
+                                            setErrorMsg('');
+                                        }}
+                                        className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:ring-brand-500 focus:border-brand-500 bg-white ${errorMsg ? 'border-red-500' : 'border-gray-300'}`} 
+                                        placeholder="Enter quiz access code" 
+                                    />
+                                </div>
+                                {errorMsg && <p className="text-red-500 text-xs font-semibold mt-2 animate-pulse">{errorMsg}</p>}
+                            </div>
+                            <button 
+                                type="submit" 
+                                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-md"
+                            >
+                                Continue to Quiz
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            );
+
+            const renderQuiz = () => {
+                const q = quizQuestions[currentQ];
+                
+                return (
+                    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-64px)] flex flex-col md:flex-row gap-6">
+                        {/* Main Quiz Area */}
+                        <div className="flex-1 flex flex-col">
+                            {/* Quiz Header & Progress */}
+                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6 flex justify-between items-center">
+                                <div>
+                                    <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">Question {currentQ + 1} of {quizQuestions.length}</span>
+                                    <div className="text-xs text-brand-600 font-semibold mt-1 bg-brand-50 px-2 py-1 rounded-md inline-block">{q.difficulty} Level</div>
+                                </div>
+                                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
+                                    <Icons.Clock className={timeRemaining < 300 ? "text-red-500 animate-pulse" : "text-gray-500"} />
+                                    <span className={`font-mono text-lg font-bold ${timeRemaining < 300 ? "text-red-600" : "text-gray-700"}`}>
+                                        {formatTime(timeRemaining)}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="w-full bg-gray-200 rounded-full h-1.5 mb-8">
+                                <div className="bg-brand-500 h-1.5 rounded-full transition-all duration-300" style={{ width: `${((currentQ + 1) / quizQuestions.length) * 100}%` }}></div>
+                            </div>
+
+                            {/* Question Card */}
+                            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex-1 mb-6">
+                                <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-8 leading-snug scientific-text">
+                                    {q.question}
+                                </h2>
+
+                                <div className="space-y-4">
+                                    {q.options.map((opt, idx) => {
+                                        const isSelected = answers[currentQ] === idx;
+                                        return (
+                                            <div 
+                                                key={idx}
+                                                onClick={() => {
+                                                    const newAnswers = [...answers];
+                                                    newAnswers[currentQ] = idx;
+                                                    setAnswers(newAnswers);
+                                                }}
+                                                className={`p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 flex items-center group
+                                                    ${isSelected 
+                                                        ? 'border-brand-500 bg-brand-50 ring-4 ring-brand-500/10' 
+                                                        : 'border-gray-200 hover:border-brand-300 hover:bg-gray-50'
+                                                    }`}
+                                            >
+                                                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 transition-colors font-semibold
+                                                    ${isSelected ? 'border-brand-500 bg-brand-500 text-white' : 'border-gray-300 text-gray-500 group-hover:border-brand-300'}`}>
+                                                    {String.fromCharCode(65 + idx)}
+                                                </div>
+                                                <span className={`text-lg scientific-text ${isSelected ? 'text-brand-900 font-medium' : 'text-gray-700'}`}>
+                                                    {opt}
+                                                </span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Navigation */}
+                            <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                                <button 
+                                    onClick={() => setCurrentQ(Math.max(0, currentQ - 1))}
+                                    disabled={currentQ === 0}
+                                    className="px-6 py-3 rounded-xl font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Previous
+                                </button>
+                                
+                                {currentQ === quizQuestions.length - 1 ? (
+                                    <button 
+                                        onClick={() => setShowSubmitModal(true)}
+                                        className="px-8 py-3 rounded-xl font-bold text-white bg-green-500 hover:bg-green-600 transition-colors shadow-md"
+                                    >
+                                        Submit Quiz
+                                    </button>
+                                ) : (
+                                    <button 
+                                        onClick={() => setCurrentQ(Math.min(quizQuestions.length - 1, currentQ + 1))}
+                                        className="px-8 py-3 rounded-xl font-semibold text-white bg-brand-600 hover:bg-brand-700 transition-colors shadow-md"
+                                    >
+                                        Next
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Navigator Grid */}
+                        <div className="w-full md:w-72 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 h-fit sticky top-24">
+                            <h3 className="font-bold text-gray-800 mb-4 flex justify-between items-center">
+                                Navigator
+                                <span className="text-xs bg-gray-100 px-2 py-1 rounded-md text-gray-600">{answers.filter(a=>a!==null).length}/{quizQuestions.length}</span>
+                            </h3>
+                            <div className="grid grid-cols-5 gap-2">
+                                {quizQuestions.map((_, idx) => {
+                                    const isAttempted = answers[idx] !== null;
+                                    const isCurrent = currentQ === idx;
+                                    return (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setCurrentQ(idx)}
+                                            className={`h-10 w-full rounded-lg text-sm font-semibold transition-all
+                                                ${isCurrent ? 'ring-2 ring-brand-600 ring-offset-2' : ''}
+                                                ${isAttempted ? 'bg-brand-100 text-brand-700 border border-brand-200' : 'bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100'}
+                                            `}
+                                        >
+                                            {idx + 1}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                            <div className="mt-6 space-y-2 text-sm text-gray-600">
+                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-brand-100 border border-brand-200"></div> Attempted</div>
+                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-gray-50 border border-gray-200"></div> Unattempted</div>
+                            </div>
+                            
+                            {/* Direct Submission Button */}
+                            <button 
+                                onClick={() => setShowSubmitModal(true)}
+                                className="mt-8 w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                            >
+                                <Icons.CheckCircle /> Direct Submit
+                            </button>
+                        </div>
+                        
+                        {/* Custom Submit Modal */}
+                        {showSubmitModal && (
+                            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                                <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+                                    <div className="flex items-center gap-3 mb-4 text-red-500">
+                                        <Icons.ShieldCheck />
+                                        <h3 className="text-2xl font-bold text-gray-900">Submit Quiz?</h3>
+                                    </div>
+                                    <p className="text-gray-600 mb-6 leading-relaxed">
+                                        You have answered <strong className="text-gray-900">{answers.filter(a => a !== null).length}</strong> out of <strong className="text-gray-900">{quizQuestions.length}</strong> questions.
+                                        Are you sure you want to submit? You cannot change your answers after submission.
+                                    </p>
+                                    <div className="flex justify-end gap-3">
+                                        <button 
+                                            onClick={() => setShowSubmitModal(false)}
+                                            className="px-5 py-2.5 rounded-xl font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                                        >
+                                            Continue Attempting
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                setShowSubmitModal(false);
+                                                handleQuizSubmit();
+                                            }}
+                                            className="px-5 py-2.5 rounded-xl font-bold text-white bg-brand-600 hover:bg-brand-700 transition-colors shadow-md"
+                                        >
+                                            Yes, Submit Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            const renderResult = () => {
+                const correctCount = answers.filter((a, i) => a === quizQuestions[i].correct).length;
+                const skippedCount = answers.filter(a => a === null).length;
+                const incorrectCount = quizQuestions.length - correctCount - skippedCount;
+                const percentage = Math.round((correctCount / quizQuestions.length) * 100);
+                
+                let remarks = "";
+                let colorClass = "";
+                if (percentage >= 90) { remarks = "Outstanding Performance! Excellent conceptual clarity."; colorClass = "text-green-600"; }
+                else if (percentage >= 70) { remarks = "Good Effort! You have a solid grasp of the concepts."; colorClass = "text-brand-600"; }
+                else if (percentage >= 50) { remarks = "Needs Improvement. Review the lecture notes and Practice PDF."; colorClass = "text-yellow-600"; }
+                else { remarks = "Critical! Please consult Sir Jawad for a revision strategy."; colorClass = "text-red-600"; }
+
+                return (
+                    <div className="min-h-[calc(100vh-64px)] flex flex-col items-center p-6 py-12 animate-fade-in">
+                        <div className="max-w-4xl w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                            
+                            {/* Header Section */}
+                            <div className="bg-brand-600 p-8 text-center text-white">
+                                <h1 className="text-3xl font-bold mb-2">Performance Dashboard</h1>
+                                <p className="opacity-90">Capital Coaching Academy</p>
+                            </div>
+
+                            <div className="p-8 md:p-12">
+                                {/* Student Info */}
+                                <div className="flex flex-wrap justify-between items-center bg-gray-50 p-6 rounded-2xl mb-8 border border-gray-100">
+                                    <div>
+                                        <p className="text-sm text-gray-500 uppercase font-semibold">Student</p>
+                                        <p className="text-xl font-bold text-gray-900">{studentData.name}</p>
+                                        <p className="text-sm text-gray-600">S/O {studentData.fatherName}</p>
+                                    </div>
+                                    <div className="text-right mt-4 md:mt-0">
+                                        <p className="text-sm text-gray-500 uppercase font-semibold">Subject</p>
+                                        <p className="text-lg font-bold text-gray-900">MDCAT Mock Test (Sunday Test 7)</p>
+                                        <p className="text-sm text-gray-600">Instructor: Sir Jawad | 18 July 2026</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-12">
+                                    {/* Circular Chart */}
+                                    <div className="flex flex-col items-center justify-center">
+                                        <div className="relative w-48 h-48">
+                                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                                <path
+                                                    className="text-gray-100"
+                                                    strokeWidth="3"
+                                                    stroke="currentColor"
+                                                    fill="none"
+                                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                />
+                                                <path
+                                                    className={`${percentage >= 50 ? 'text-green-500' : 'text-red-500'} drop-shadow-md`}
+                                                    strokeDasharray={`${percentage}, 100`}
+                                                    strokeWidth="3"
+                                                    strokeLinecap="round"
+                                                    stroke="currentColor"
+                                                    fill="none"
+                                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                />
+                                            </svg>
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                <span className="text-5xl font-extrabold text-gray-800">{percentage}%</span>
+                                            </div>
+                                        </div>
+                                        <p className={`mt-6 text-center font-bold text-lg ${colorClass}`}>{remarks}</p>
+                                    </div>
+
+                                    {/* Stats Grid */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 text-center">
+                                            <p className="text-blue-500 text-sm font-bold uppercase">Total MCQs</p>
+                                            <p className="text-3xl font-black text-blue-900 mt-1">{quizQuestions.length}</p>
+                                        </div>
+                                        <div className="bg-green-50 p-6 rounded-2xl border border-green-100 text-center">
+                                            <p className="text-green-600 text-sm font-bold uppercase">Correct</p>
+                                            <p className="text-3xl font-black text-green-900 mt-1">{correctCount}</p>
+                                        </div>
+                                        <div className="bg-red-50 p-6 rounded-2xl border border-red-100 text-center">
+                                            <p className="text-red-500 text-sm font-bold uppercase">Incorrect</p>
+                                            <p className="text-3xl font-black text-red-900 mt-1">{incorrectCount}</p>
+                                        </div>
+                                        <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 text-center">
+                                            <p className="text-gray-500 text-sm font-bold uppercase">Skipped</p>
+                                            <p className="text-3xl font-black text-gray-700 mt-1">{skippedCount}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8 border-t border-gray-100">
+                                    <button 
+                                        onClick={() => setScreen('review')}
+                                        className="bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-8 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                                    >
+                                        <Icons.BookOpen /> Review Answers
+                                    </button>
+                                    <button 
+                                        onClick={generateResultPDF}
+                                        className="bg-white border-2 border-brand-600 text-brand-600 hover:bg-brand-50 font-semibold py-3 px-8 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                                    >
+                                        <Icons.Download /> Download Result PDF
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            const renderReview = () => {
+                return (
+                    <div className="max-w-4xl mx-auto p-4 sm:p-6 py-10 min-h-[calc(100vh-64px)]">
+                        <div className="flex justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-200 sticky top-20 z-40">
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900">Review Answers</h2>
+                                <p className="text-gray-500 text-sm">Detailed explanations by Sir Jawad</p>
+                            </div>
+                            <button 
+                                onClick={() => setScreen('result')}
+                                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-6 rounded-lg transition-colors"
+                            >
+                                Back to Result
+                            </button>
+                        </div>
+
+                        <div className="space-y-6">
+                            {quizQuestions.map((q, idx) => {
+                                const studentAns = answers[idx];
+                                const isCorrect = studentAns === q.correct;
+                                const isSkipped = studentAns === null;
+
+                                return (
+                                    <div key={idx} className={`bg-white rounded-2xl shadow-sm border-l-4 overflow-hidden
+                                        ${isCorrect ? 'border-green-500' : (isSkipped ? 'border-gray-400' : 'border-red-500')}
+                                    `}>
+                                        <div className="p-6">
+                                            <div className="flex items-start gap-4 mb-6">
+                                                <span className="flex-shrink-0 w-8 h-8 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center font-bold text-sm">
+                                                    {idx + 1}
+                                                </span>
+                                                <h3 className="text-lg font-semibold text-gray-800 leading-snug scientific-text pt-1">{q.question}</h3>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 gap-3 ml-12 mb-6">
+                                                {q.options.map((opt, oIdx) => {
+                                                    let optStyle = "border-gray-200 text-gray-600 bg-gray-50";
+                                                    let icon = null;
+
+                                                    if (oIdx === q.correct) {
+                                                        optStyle = "border-green-500 bg-green-50 text-green-800 font-medium ring-1 ring-green-500";
+                                                        icon = <Icons.CheckCircle />;
+                                                    } else if (oIdx === studentAns && !isCorrect) {
+                                                        optStyle = "border-red-500 bg-red-50 text-red-800 ring-1 ring-red-500";
+                                                        icon = <Icons.XCircle />;
+                                                    }
+
+                                                    return (
+                                                        <div key={oIdx} className={`p-4 rounded-xl border flex justify-between items-center ${optStyle}`}>
+                                                            <div className="flex items-center gap-3">
+                                                                <span className="font-bold w-6">{String.fromCharCode(65 + oIdx)}.</span>
+                                                                <span className="scientific-text">{opt}</span>
+                                                            </div>
+                                                            {icon}
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+
+                                            <div className="ml-12 bg-blue-50 border border-blue-100 rounded-xl p-5">
+                                                <h4 className="text-blue-800 font-bold mb-2 flex items-center gap-2">
+                                                    <Icons.BookOpen /> Concept Discussion
+                                                </h4>
+                                                <p className="text-blue-900 text-sm leading-relaxed">{q.explanation}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <TopBar />
+                    <main className="flex-1">
+                        {screen === 'landing' && renderLanding()}
+                        {screen === 'register' && renderRegister()}
+                        {screen === 'quiz' && renderQuiz()}
+                        {screen === 'result' && renderResult()}
+                        {screen === 'review' && renderReview()}
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
